@@ -55,6 +55,16 @@ aws lambda invoke --function-name acme-reservation-seed --region ap-northeast-1 
 | 東京 | `/acme/<環境>/reservation-db/readonly-secret-arn`・`readwrite-secret-arn` | アプリ用のDBユーザー |
 | us-east-1 | `/acme/edge/dns/zone-id`・`zone-name` | ホストゾーン（証明書の DNS 検証用） |
 
+## 運用のスクリプト
+
+| スクリプト | すること |
+| --- | --- |
+| `scripts/reseed.sh` | 予約DBのダミーデータを作り直す（実行した日の7日前〜14日後） |
+| `scripts/harden-github-repo.sh <owner/repo>` | public リポジトリの最低限のセキュリティ設定（他人の PR・Issue の制限、フォークの PR の承認、Actions の制限、secret scanning、main とタグの保護） |
+| `scripts/add-synth-only-vpcs.py <cdk.context.json>` | 検証・本番の VPC の lookup の結果を、仮の値で固定する（検証・本番は synth だけなので VPC を作らない） |
+
+部品の版の公開は `platform-constructs/scripts/release.sh`、取り込みは各アプリの `infra/scripts/upgrade-platform.sh` です。
+
 ## 費用と削除
 
 NAT ゲートウェイ（開発環境の1台）、RDS、ALB、Fargate、WAF が動いている間は課金されます。デモが終わったら、アプリ（`Dev/Dashboard`・`Dev/DashboardEdge`）→ 各 `SharedEnv` → `Foundation-Edge` → `Foundation` の順に削除します。CodeArtifact の中身も消えるので、残したい場合は `Foundation` だけ残します。
