@@ -7,7 +7,7 @@
 | `Foundation` | 東京 | CodeArtifact（部品の配布先）、GitHub の OIDC プロバイダー、CI 用のロール（`gha-check`・`gha-deploy`・`gha-publish`） |
 | `Foundation-Edge` | us-east-1 | 部品の us-east-1 スタック（CloudFront 用の証明書）が読む SSM パラメーター |
 | `Dev-SharedEnv` | 東京 | VPC（NAT 1台）、予約DB（RDS PostgreSQL）、DBユーザーのシークレット、ダミーデータの投入、SSM パラメーター |
-| `Stg-SharedEnv`・`Prod-SharedEnv` | 東京 | VPC（NAT 1台）と DNS の SSM パラメーターだけ（アプリの synth の参照先） |
+| `Stg-SharedEnv`・`Prod-SharedEnv` | 東京 | デモでは作らない（`src/env/index.ts` でコメントアウト）。外せば VPC（NAT 1台）と DNS の SSM パラメーターだけを作る |
 
 CloudFront 用の証明書と WAF は、部品（`@acme/platform`）がサービスごとに us-east-1 に作ります。ここで用意するのは、その材料（ホストゾーン）だけです。
 
@@ -57,4 +57,4 @@ aws lambda invoke --function-name acme-reservation-seed --region ap-northeast-1 
 
 ## 費用と削除
 
-NAT ゲートウェイ（3環境で3台）、RDS、ALB、Fargate、WAF が動いている間は課金されます。デモが終わったら、アプリ（`Dev/Dashboard`・`Dev/DashboardEdge`）→ 各 `SharedEnv` → `Foundation-Edge` → `Foundation` の順に削除します。CodeArtifact の中身も消えるので、残したい場合は `Foundation` だけ残します。
+NAT ゲートウェイ（開発環境の1台）、RDS、ALB、Fargate、WAF が動いている間は課金されます。デモが終わったら、アプリ（`Dev/Dashboard`・`Dev/DashboardEdge`）→ 各 `SharedEnv` → `Foundation-Edge` → `Foundation` の順に削除します。CodeArtifact の中身も消えるので、残したい場合は `Foundation` だけ残します。
