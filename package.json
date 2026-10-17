@@ -1,0 +1,25 @@
+{
+  "name": "infra-foundation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "インフラチームの土台：アカウント共通の仕組み（Foundation）と、共有のネットワークと予約DB（SharedEnv）",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "synth": "cdk synth",
+    "cdk": "cdk"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.273.0",
+    "constructs": "10.8.1",
+    "pg": "^8.16.0",
+    "@aws-sdk/client-secrets-manager": "^3.800.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.15.0",
+    "aws-cdk": "2.1145.0",
+    "esbuild": "^0.25.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.8.3"
+  }
+}
