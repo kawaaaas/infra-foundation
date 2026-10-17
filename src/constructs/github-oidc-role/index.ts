@@ -4,8 +4,13 @@ import { Construct } from 'constructs';
 export interface GithubOidcRoleProps {
   readonly roleName: string;
   readonly provider: iam.IOidcProvider;
-  /** 信頼する GitHub の条件（例：repo:<user>/dashboard-app:ref:refs/heads/main） */
-  readonly subject: string;
+  /** GitHub のユーザー名と、その数字の ID */
+  readonly owner: string;
+  readonly ownerId: string;
+  /** 信頼するリポジトリ（`*` で全部） */
+  readonly repo: string;
+  /** 信頼するきっかけ（例：pull_request、ref:refs/heads/main） */
+  readonly trigger: string;
 }
 
 /** CDK の bootstrap が作るロールの種類 */
@@ -20,11 +25,14 @@ export class GithubOidcRole extends Construct {
 
   constructor(scope: Construct, id: string, props: GithubOidcRoleProps) {
     super(scope, id);
+    const { owner, ownerId, repo, trigger } = props;
+    // GitHub の sub は2つの形式がある。新しい既定は名前に数字の ID が付く（名前を変えても乗っ取られないため）
+    const subjects = [`repo:${owner}/${repo}:${trigger}`, `repo:${owner}@${ownerId}/${repo}@*:${trigger}`];
     this.role = new iam.Role(this, 'Role', {
       roleName: props.roleName,
       assumedBy: new iam.WebIdentityPrincipal(props.provider.openIdConnectProviderArn, {
         StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
-        StringLike: { 'token.actions.githubusercontent.com:sub': props.subject },
+        StringLike: { 'token.actions.githubusercontent.com:sub': subjects },
       }),
     });
   }

@@ -11,14 +11,16 @@ export class Foundation extends Stack {
     super(scope, id, props);
     const registry = new ArtifactRegistry(this, 'Registry', { domain: 'acme', repository: 'platform' });
     const github = new GithubOidc(this, 'GitHub', { existingProviderArn: CONFIG.existingGithubOidcProviderArn });
-    const user = CONFIG.githubUser;
+    const owner = { owner: CONFIG.githubUser, ownerId: CONFIG.githubUserId };
     const regions = [CONFIG.region, CONFIG.edgeRegion];
 
     // PR：synth と diff だけ
     const check = new GithubOidcRole(this, 'CheckRole', {
       roleName: 'gha-check',
       provider: github.provider,
-      subject: `repo:${user}/*:pull_request`,
+      ...owner,
+      repo: '*',
+      trigger: 'pull_request',
     });
     registry.grantRead(check.role);
     check.allowAssumeCdkRoles(regions, 'lookup');
@@ -27,7 +29,9 @@ export class Foundation extends Stack {
     const deploy = new GithubOidcRole(this, 'DeployRole', {
       roleName: 'gha-deploy',
       provider: github.provider,
-      subject: `repo:${user}/dashboard-app:ref:refs/heads/main`,
+      ...owner,
+      repo: 'dashboard-app',
+      trigger: 'ref:refs/heads/main',
     });
     registry.grantRead(deploy.role);
     deploy.allowAssumeCdkRoles(regions, 'lookup', 'deploy', 'file-publishing', 'image-publishing');
@@ -36,7 +40,9 @@ export class Foundation extends Stack {
     const publish = new GithubOidcRole(this, 'PublishRole', {
       roleName: 'gha-publish',
       provider: github.provider,
-      subject: `repo:${user}/platform-constructs:ref:refs/tags/v*`,
+      ...owner,
+      repo: 'platform-constructs',
+      trigger: 'ref:refs/tags/v*',
     });
     registry.grantPublish(publish.role);
   }

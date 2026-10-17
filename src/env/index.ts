@@ -13,6 +13,9 @@ export const CONFIG = {
   /** GitHub のユーザー名（リポジトリは public で、このユーザーの下に置く） */
   githubUser: 'kawaaaas',
 
+  /** GitHub のユーザーの数字の ID（`gh api users/<ユーザー名> -q .id`）。OIDC の新しい形式の sub に入る */
+  githubUserId: '124750318',
+
   /** すでにアカウントに GitHub の OIDC プロバイダーがあれば、その ARN（なければ undefined のまま） */
   existingGithubOidcProviderArn: undefined as string | undefined,
 
